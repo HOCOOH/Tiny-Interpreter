@@ -21,9 +21,9 @@ add_definitions(-DANTLR4CPP_STATIC)
 
 add_executable(Tiny 
     src/main.cpp
-    src/generated/TinyLexer.cpp
-    src/generated/TinyParser.cpp
+    src/generated/antlr/TinyLexer.cpp
+    src/generated/antlr/TinyParser.cpp
 )
 
-target_link_libraries(rpg  antlr4-runtime.a -lLLVM-11 -lrt -ldl -ltinfo -lpthread -lz -lm)
+target_link_libraries(Tiny antlr4-runtime.a -lLLVM-11 -lrt -ldl -ltinfo -lpthread -lz -lm)
 

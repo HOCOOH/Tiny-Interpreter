@@ -1,36 +1,5 @@
 grammar Tiny;
 
-
-NUM    : [1-9][0-9]*;
-
-PLUS  : '+';
-MINUS : '-';
-EQUAL : '=';
-GT   : '>';
-LT   : '<';
-
-MULT  : '*';
-DIV   : '/';
-LPAR  : '(';
-RPAR  : ')';
-
-ASSIGN: ':=';
-
-IF    : 'if';
-THEN  : 'then';
-ELSE  : 'else';
-END   : 'end';
-REPEAT: 'repeat';
-UNTIL : 'until';
-WRITE : 'write';
-
-CHAR  : 'char';
-INT   : 'int';
-WS     : [ \t\r\n]+ -> skip;
-ID     : [a-zA-Z]([a-zA-Z] | [0-9])*;
-SEMI  : ';';
-READ  : 'read';
-
 prog    : decls SEMI stmts;
 
 decls   : decls decl
@@ -44,7 +13,6 @@ type    : INT | CHAR;
 stmts   : stmts SEMI stmt
         | stmt
         ;
-
 
 stmt    : if_stmt
         | repeat_stmt
@@ -84,9 +52,39 @@ term        : term mulop factor
 mulop       : MULT | DIV;
 
 factor      : LPAR exp RPAR
-            | PLUS NUM
-            | MINUS NUM
-            | NUM	
+            | unary
             | ID
             ;
 
+unary       : PLUS NUM
+            | MINUS NUM
+            | NUM
+            ;
+
+
+PLUS  : '+';
+MINUS : '-';
+EQUAL : '=';
+GT   : '>';
+LT   : '<';
+MULT  : '*';
+DIV   : '/';
+LPAR  : '(';
+RPAR  : ')';
+ASSIGN: ':=';
+SEMI  : ';';
+
+IF    : 'if';
+THEN  : 'then';
+ELSE  : 'else';
+END   : 'end';
+REPEAT: 'repeat';
+UNTIL : 'until';
+READ  : 'read';
+WRITE : 'write';
+CHAR  : 'char';
+INT   : 'int';
+
+WS     : [ \t\r\n]+ -> skip;
+NUM    : [1-9][0-9]*;
+ID     : [a-zA-Z]([a-zA-Z] | [0-9])*;
