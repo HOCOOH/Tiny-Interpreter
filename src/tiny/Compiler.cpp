@@ -54,7 +54,7 @@ int Compiler::compile() {
         TinyParser::ProgContext* tree = parser.prog();
         std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
-        MyTiny test;
+        TinyCodeVisitor test;
         test.visitProg(tree);
 
         /*

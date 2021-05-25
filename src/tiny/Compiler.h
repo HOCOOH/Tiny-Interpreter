@@ -4,6 +4,7 @@
 #include "TinyLexer.h"
 #include "TinyParser.h"
 #include "TinyBaseVisitor.h"
+#include "SymbolTable.h"
 
 class Compiler {
 
@@ -28,7 +29,7 @@ public:
 
 private:
     std::list<std::string> sources;             /* List of source filenames to compile */
-    // std::shared_ptr<SymbolTable> symbolTable;   /* Symbol Table */
+    std::shared_ptr<SymbolTable> symbolTable;   /* Symbol Table */
     // std::shared_ptr<AST> ast;                   /* Abstract Syntax Tree */
 /*
     friend class RpgDeclarationVisitor;
