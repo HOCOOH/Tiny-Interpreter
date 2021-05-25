@@ -55,6 +55,8 @@ public:
 
     virtual antlrcpp::Any visitFactor(TinyParser::FactorContext *context) = 0;
 
+    virtual antlrcpp::Any visitUnary(TinyParser::UnaryContext *context) = 0;
+
 
 };
 

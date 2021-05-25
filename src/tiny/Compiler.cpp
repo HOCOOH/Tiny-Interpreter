@@ -4,6 +4,7 @@
 #include "TinyLexer.h"
 #include "TinyParser.h"
 #include "Compiler.h"
+#include "Parser.h"
 
 void Compiler::addSource(const char* filename) {
     this->sources.push_back(filename);
@@ -37,15 +38,24 @@ int Compiler::compile() {
 
         antlr4::ANTLRInputStream input(file_contents);
 
-        antlrcpprpg::TinyLexer lexer(&input);
+        TinyLexer lexer(&input);
 
         antlr4::CommonTokenStream tokens(&lexer);
 
-        antlrcpprpg::TinyParser parser(&tokens);
+        tokens.fill();
+		for (auto token : tokens.getTokens()) {
+			std::cout << token->toString() << std::endl;
+		}
+
+        TinyParser parser(&tokens);
         // parser.removeErrorListeners();
 
-        antlrcpprpg::TinyParser::RContext *tree = parser.r();
-        //std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
+        // antlr4::tree::ParseTree *tree = parser.prog();
+        TinyParser::ProgContext* tree = parser.prog();
+        std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
+
+        MyTiny test;
+        test.visitProg(tree);
 
         /*
         // First Pass parse declarations

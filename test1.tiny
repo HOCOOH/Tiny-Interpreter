@@ -1,0 +1,9 @@
+int aaa;
+int bbb;;
+read aaa;
+aaa := aaa + -1;
+repeat
+    bbb := aaa + 1 * 666;
+    write bbb
+until aaa < 1;
+write aaa

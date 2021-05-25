@@ -12,10 +12,10 @@
 class  TinyParser : public antlr4::Parser {
 public:
   enum {
-    NUM = 1, PLUS = 2, MINUS = 3, EQUAL = 4, GT = 5, LT = 6, MULT = 7, DIV = 8, 
-    LPAR = 9, RPAR = 10, ASSIGN = 11, IF = 12, THEN = 13, ELSE = 14, END = 15, 
-    REPEAT = 16, UNTIL = 17, WRITE = 18, CHAR = 19, INT = 20, WS = 21, ID = 22, 
-    SEMI = 23, READ = 24
+    PLUS = 1, MINUS = 2, EQUAL = 3, GT = 4, LT = 5, MULT = 6, DIV = 7, LPAR = 8, 
+    RPAR = 9, ASSIGN = 10, SEMI = 11, IF = 12, THEN = 13, ELSE = 14, END = 15, 
+    REPEAT = 16, UNTIL = 17, READ = 18, WRITE = 19, CHAR = 20, INT = 21, 
+    WS = 22, NUM = 23, ID = 24
   };
 
   enum {
@@ -23,7 +23,7 @@ public:
     RuleStmt = 5, RuleIf_stmt = 6, RuleRepeat_stmt = 7, RuleAssign_stmt = 8, 
     RuleRead_stmt = 9, RuleWrite_stmt = 10, RuleExp = 11, RuleCmpop = 12, 
     RuleSimple_exp = 13, RuleAddop = 14, RuleTerm = 15, RuleMulop = 16, 
-    RuleFactor = 17
+    RuleFactor = 17, RuleUnary = 18
   };
 
   explicit TinyParser(antlr4::TokenStream *input);
@@ -53,7 +53,8 @@ public:
   class AddopContext;
   class TermContext;
   class MulopContext;
-  class FactorContext; 
+  class FactorContext;
+  class UnaryContext; 
 
   class  ProgContext : public antlr4::ParserRuleContext {
   public:
@@ -320,9 +321,7 @@ public:
     antlr4::tree::TerminalNode *LPAR();
     ExpContext *exp();
     antlr4::tree::TerminalNode *RPAR();
-    antlr4::tree::TerminalNode *PLUS();
-    antlr4::tree::TerminalNode *NUM();
-    antlr4::tree::TerminalNode *MINUS();
+    UnaryContext *unary();
     antlr4::tree::TerminalNode *ID();
 
 
@@ -331,6 +330,21 @@ public:
   };
 
   FactorContext* factor();
+
+  class  UnaryContext : public antlr4::ParserRuleContext {
+  public:
+    UnaryContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *PLUS();
+    antlr4::tree::TerminalNode *NUM();
+    antlr4::tree::TerminalNode *MINUS();
+
+
+    virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  UnaryContext* unary();
 
 
   virtual bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;

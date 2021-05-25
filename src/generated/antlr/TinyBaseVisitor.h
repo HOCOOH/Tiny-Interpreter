@@ -87,6 +87,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitUnary(TinyParser::UnaryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
 
 };
 

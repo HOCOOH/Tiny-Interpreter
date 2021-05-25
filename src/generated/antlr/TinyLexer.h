@@ -12,10 +12,10 @@
 class  TinyLexer : public antlr4::Lexer {
 public:
   enum {
-    NUM = 1, PLUS = 2, MINUS = 3, EQUAL = 4, GT = 5, LT = 6, MULT = 7, DIV = 8, 
-    LPAR = 9, RPAR = 10, ASSIGN = 11, IF = 12, THEN = 13, ELSE = 14, END = 15, 
-    REPEAT = 16, UNTIL = 17, WRITE = 18, CHAR = 19, INT = 20, WS = 21, ID = 22, 
-    SEMI = 23, READ = 24
+    PLUS = 1, MINUS = 2, EQUAL = 3, GT = 4, LT = 5, MULT = 6, DIV = 7, LPAR = 8, 
+    RPAR = 9, ASSIGN = 10, SEMI = 11, IF = 12, THEN = 13, ELSE = 14, END = 15, 
+    REPEAT = 16, UNTIL = 17, READ = 18, WRITE = 19, CHAR = 20, INT = 21, 
+    WS = 22, NUM = 23, ID = 24
   };
 
   explicit TinyLexer(antlr4::CharStream *input);

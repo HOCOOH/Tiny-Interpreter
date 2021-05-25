@@ -3,7 +3,7 @@
 #include "antlr4-runtime.h"
 #include "TinyLexer.h"
 #include "TinyParser.h"
-#include "TinyParserBaseVisitor.h"
+#include "TinyBaseVisitor.h"
 
 class Compiler {
 

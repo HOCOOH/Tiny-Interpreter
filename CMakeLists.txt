@@ -11,11 +11,12 @@ set(LLVM_LINK_COMPONENTS
 
 # include_directories(include)
 # include_directories(test/gtest)
-include_directories(src)
-include_directories(src/generated)
+include_directories(src/tiny)
+include_directories(src/generated/antlr)
 include_directories(antlr-cpp-runtime/include/antlr4-runtime)
 # include_directories(/usr/include/llvm-11)
 
+link_directories(antlr-cpp-runtime/lib)
 # link_directories(/usr/lib/llvm-11/lib)
 add_definitions(-DANTLR4CPP_STATIC)
 
@@ -23,6 +24,8 @@ add_executable(Tiny
     src/main.cpp
     src/generated/antlr/TinyLexer.cpp
     src/generated/antlr/TinyParser.cpp
+    src/tiny/Compiler.cpp
+    src/tiny/Parser.cpp
 )
 
 target_link_libraries(Tiny antlr4-runtime.a -lLLVM-11 -lrt -ldl -ltinfo -lpthread -lz -lm)

@@ -1,12 +1,12 @@
 #include <iostream>
-#include "Compiler.h"
+#include "tiny/Compiler.h"
 
 int main(int argc, char *argv[]) {
     Compiler tiny_compiler;
 
-    rpg.addSource("../test1.tiny");
+    tiny_compiler.addSource("../test1.tiny");
 
-    int exit_code = rpg.compile();
+    int exit_code = tiny_compiler.compile();
 
     exit(exit_code);
 }
