@@ -27,7 +27,6 @@ add_executable(Tiny
     src/generated/antlr/TinyParser.cpp
     src/tiny/Compiler.cpp
     src/tiny/Parser.cpp
-    src/tiny/SymbolTable.h
 )
 
 target_link_libraries(Tiny antlr4-runtime.a -lLLVM-11 -lrt -ldl -ltinfo -lpthread -lz -lm)

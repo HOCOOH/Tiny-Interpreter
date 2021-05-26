@@ -63,15 +63,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitCmpop(TinyParser::CmpopContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual antlrcpp::Any visitSimple_exp(TinyParser::Simple_expContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitAddop(TinyParser::AddopContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -79,15 +71,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual antlrcpp::Any visitMulop(TinyParser::MulopContext *ctx) override {
+  virtual antlrcpp::Any visitUnary(TinyParser::UnaryContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual antlrcpp::Any visitFactor(TinyParser::FactorContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual antlrcpp::Any visitUnary(TinyParser::UnaryContext *ctx) override {
     return visitChildren(ctx);
   }
 

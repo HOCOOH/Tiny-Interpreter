@@ -1,5 +1,5 @@
 #include <iostream>
-#include "tiny/Compiler.h"
+#include "Compiler.h"
 
 int main(int argc, char *argv[]) {
     Compiler tiny_compiler;

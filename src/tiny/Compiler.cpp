@@ -54,8 +54,11 @@ int Compiler::compile() {
         TinyParser::ProgContext* tree = parser.prog();
         std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
-        TinyCodeVisitor test;
+        TinyCodeVisitor test(this);
         test.visitProg(tree);
+        symbolTable->dump();
+        //auto test = symbolTable->Get("aaa");
+
 
         /*
         // First Pass parse declarations

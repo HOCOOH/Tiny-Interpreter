@@ -29,13 +29,16 @@ public:
 
 private:
     std::list<std::string> sources;             /* List of source filenames to compile */
-    std::shared_ptr<SymbolTable> symbolTable;   /* Symbol Table */
+    //std::shared_ptr<SymbolTable> symbolTable;   /* Symbol Table */
+    std::shared_ptr<SymbolTable> symbolTable = std::make_shared<SymbolTable>();
+    //SymbolTable symbolTable; /*
     // std::shared_ptr<AST> ast;                   /* Abstract Syntax Tree */
 /*
     friend class RpgDeclarationVisitor;
     friend class RpgCodeVisitor;
     friend class RpgVisitor;
 */
+    friend class TinyCodeVisitor;
 };
 
 class TinyException : public std::exception {

@@ -43,19 +43,13 @@ public:
 
     virtual antlrcpp::Any visitExp(TinyParser::ExpContext *context) = 0;
 
-    virtual antlrcpp::Any visitCmpop(TinyParser::CmpopContext *context) = 0;
-
     virtual antlrcpp::Any visitSimple_exp(TinyParser::Simple_expContext *context) = 0;
-
-    virtual antlrcpp::Any visitAddop(TinyParser::AddopContext *context) = 0;
 
     virtual antlrcpp::Any visitTerm(TinyParser::TermContext *context) = 0;
 
-    virtual antlrcpp::Any visitMulop(TinyParser::MulopContext *context) = 0;
+    virtual antlrcpp::Any visitUnary(TinyParser::UnaryContext *context) = 0;
 
     virtual antlrcpp::Any visitFactor(TinyParser::FactorContext *context) = 0;
-
-    virtual antlrcpp::Any visitUnary(TinyParser::UnaryContext *context) = 0;
 
 
 };

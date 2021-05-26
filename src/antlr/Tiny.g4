@@ -1,6 +1,6 @@
 grammar Tiny;
 
-prog    : decls SEMI stmts;
+prog    : decls stmts;
 
 decls   : decls decl
         | decl
@@ -10,7 +10,7 @@ decl    : type ID SEMI;
 
 type    : INT | CHAR;
 
-stmts   : stmts SEMI stmt
+stmts   : stmts stmt
         | stmt
         ;
 
@@ -25,40 +25,39 @@ if_stmt : IF LPAR exp RPAR THEN stmts END
         | IF LPAR exp RPAR THEN stmts ELSE stmts END
         ;
 
-repeat_stmt : REPEAT stmts UNTIL exp;
+repeat_stmt : REPEAT stmts UNTIL exp SEMI;
 
-assign_stmt : ID ASSIGN exp;
+assign_stmt : ID ASSIGN exp SEMI;
 
-read_stmt   : READ ID;
+read_stmt   : READ ID SEMI;
 
-write_stmt  : WRITE exp;
+write_stmt  : WRITE exp SEMI;
 
-exp         : simple_exp cmpop simple_exp 
+exp         : simple_exp op=(GT | EQUAL | LT) simple_exp 
             | simple_exp
             ;
 
-cmpop      : GT | EQUAL | LT;
+// cmpop      : GT | EQUAL | LT;
 
-simple_exp  : simple_exp addop term
+simple_exp  : simple_exp op=(PLUS | MINUS) term
             | term
             ;
 
-addop       : PLUS | MINUS;
+// addop       : PLUS | MINUS;
 
-term        : term mulop factor
+term        : term op=(MULT | DIV) unary
+            | unary
+            ;
+
+// mulop       : MULT | DIV;
+
+unary       : MINUS unary
             | factor
             ;
 
-mulop       : MULT | DIV;
-
 factor      : LPAR exp RPAR
-            | unary
-            | ID
-            ;
-
-unary       : PLUS NUM
-            | MINUS NUM
             | NUM
+            | ID
             ;
 
 
@@ -85,6 +84,6 @@ WRITE : 'write';
 CHAR  : 'char';
 INT   : 'int';
 
+NUM    : [0-9]+;
+ID     : [a-zA-Z]([a-zA-Z0-9])*;
 WS     : [ \t\r\n]+ -> skip;
-NUM    : [1-9][0-9]*;
-ID     : [a-zA-Z]([a-zA-Z] | [0-9])*;
