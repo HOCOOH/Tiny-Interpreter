@@ -19,12 +19,12 @@ public:
     Value(Type type) : _type(type) {} 
 
     std::string GetType() {
-         switch (_type) {
-             case INT: return "INT";
-             case CHAR: return "CHAR";
-             case FLOAT: return "FLOAT";
-             default: return "";
-         }
+        switch (_type) {
+            case INT: return "INT";
+            case CHAR: return "CHAR";
+            case FLOAT: return "FLOAT";
+            default: return "";
+        }
     }
     virtual antlrcpp::Any GetVal() = 0;
     virtual void Dump() = 0; 
@@ -102,19 +102,14 @@ private:
 class SymbolTable {
 
 public:
-    void AddIdentifier(std::string name, Identifier::Type idType, T val) {
-        std::shared_ptr<Identifier> id = nullptr;
-        if (idType == Identifier::INT) {
-            id = std::make_shared<IdentifierInt>(name, idType, val);
-        }
-        else if (idType == Identifier::CHAR) {
-            id = std::make_shared<IdentifierChar>(name, idType, val);
-        }
+    void AddIdentifier(std::string name, std::unique_ptr<Value> value) {
         auto iter = idTable.find(name);
-        if(iter == idTable.end())
+        if(iter == idTable.end()) {
+            auto id = std::make_shared<Identifier>(name, value);
             idTable[name] = id;
-        //else
-            //throw TinyException("Redeclrated Identifier");
+        }    
+        else
+            throw TinyException("Redeclrated Identifier");
     }
 
     std::shared_ptr<Identifier> Get(std::string name) {

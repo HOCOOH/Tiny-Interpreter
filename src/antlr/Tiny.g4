@@ -8,7 +8,7 @@ decls   : decls decl
 
 decl    : type ID SEMI;
 
-type    : INT | CHAR;
+type    : INT | CHAR | FLOAT;
 
 stmts   : stmts stmt
         | stmt
@@ -37,19 +37,13 @@ exp         : simple_exp op=(GT | EQUAL | LT) simple_exp
             | simple_exp
             ;
 
-// cmpop      : GT | EQUAL | LT;
-
 simple_exp  : simple_exp op=(PLUS | MINUS) term
             | term
             ;
 
-// addop       : PLUS | MINUS;
-
 term        : term op=(MULT | DIV) unary
             | unary
             ;
-
-// mulop       : MULT | DIV;
 
 unary       : MINUS unary
             | factor
@@ -57,33 +51,36 @@ unary       : MINUS unary
 
 factor      : LPAR exp RPAR
             | NUM
+            | REAL
             | ID
             ;
 
 
-PLUS  : '+';
-MINUS : '-';
-EQUAL : '=';
-GT   : '>';
-LT   : '<';
-MULT  : '*';
-DIV   : '/';
-LPAR  : '(';
-RPAR  : ')';
-ASSIGN: ':=';
-SEMI  : ';';
+PLUS    : '+';
+MINUS   : '-';
+EQUAL   : '=';
+GT      : '>';
+LT      : '<';
+MULT    : '*';
+DIV     : '/';
+LPAR    : '(';
+RPAR    : ')';
+ASSIGN  : ':=';
+SEMI    : ';';
 
-IF    : 'if';
-THEN  : 'then';
-ELSE  : 'else';
-END   : 'end';
-REPEAT: 'repeat';
-UNTIL : 'until';
-READ  : 'read';
-WRITE : 'write';
-CHAR  : 'char';
-INT   : 'int';
+IF      : 'if';
+THEN    : 'then';
+ELSE    : 'else';
+END     : 'end';
+REPEAT  : 'repeat';
+UNTIL   : 'until';
+READ    : 'read';
+WRITE   : 'write';
+CHAR    : 'char';
+INT     : 'int';
+FLOAT   : 'float';
 
-NUM    : [0-9]+;
-ID     : [a-zA-Z]([a-zA-Z0-9])*;
-WS     : [ \t\r\n]+ -> skip;
+REAL    : [0-9]+.[0-9]+;
+NUM     : [0-9]+;
+ID      : [a-zA-Z]([a-zA-Z0-9])*;
+WS      : [ \t\r\n]+ -> skip;

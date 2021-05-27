@@ -1,4 +1,5 @@
 #include "Parser.h"
+#include <sstream>
 
 antlrcpp::Any TinyCodeVisitor::visitDecl(TinyParser::DeclContext *ctx) {
     if (ctx->type()) {
@@ -49,26 +50,37 @@ antlrcpp::Any TinyCodeVisitor::visitExp(TinyParser::ExpContext *ctx) {
         return visitChildren(ctx);
 }
 
-antlrcpp::Any visitSimple_exp(TinyParser::Simple_expContext *ctx) {
+antlrcpp::Any TinyCodeVisitor::visitSimple_exp(TinyParser::Simple_expContext *ctx) {
 
 }
 
-antlrcpp::Any visitTerm(TinyParser::TermContext *ctx) {
+antlrcpp::Any TinyCodeVisitor::visitTerm(TinyParser::TermContext *ctx) {
 
 }
 
-antlrcpp::Any visitUnary(TinyParser::UnaryContext *ctx) {
+antlrcpp::Any TinyCodeVisitor::visitUnary(TinyParser::UnaryContext *ctx) {
+    if (ctx->MINUS()) {
 
+    }
+    
 }
 
-antlrcpp::Any visitFactor(TinyParser::FactorContext *ctx) {
+antlrcpp::Any TinyCodeVisitor::visitFactor(TinyParser::FactorContext *ctx) {
     if (ctx->LPAR()) {
+        return visitExp(ctx->exp());
+    }
+    if (ctx->NUM()) {
+        std::stringstream ss;
+        ss << ctx->NUM()->getText();
+        int val;
+        ss >> val;
+        std::shared_ptr<Value> ret = std::make_shared<ValueInt>(val);
+        return ret;
+    }
+    if (ctx->REAL()) {
 
     }
-    else if (ctx->NUM()) {
-        
-    }
-    else if (ctx->ID()) {
+    if (ctx->ID()) {
 
     }
 
