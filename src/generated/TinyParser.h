@@ -1,5 +1,5 @@
 
-// Generated from antlr/Tiny.g4 by ANTLR 4.9.2
+// Generated from Tiny.g4 by ANTLR 4.9.2
 
 #pragma once
 
@@ -15,7 +15,7 @@ public:
     PLUS = 1, MINUS = 2, EQUAL = 3, GT = 4, LT = 5, MULT = 6, DIV = 7, LPAR = 8, 
     RPAR = 9, ASSIGN = 10, SEMI = 11, IF = 12, THEN = 13, ELSE = 14, END = 15, 
     REPEAT = 16, UNTIL = 17, READ = 18, WRITE = 19, CHAR = 20, INT = 21, 
-    NUM = 22, ID = 23, WS = 24
+    FLOAT = 22, REAL = 23, NUM = 24, ID = 25, WS = 26
   };
 
   enum {
@@ -101,6 +101,7 @@ public:
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *INT();
     antlr4::tree::TerminalNode *CHAR();
+    antlr4::tree::TerminalNode *FLOAT();
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -299,6 +300,7 @@ public:
     ExpContext *exp();
     antlr4::tree::TerminalNode *RPAR();
     antlr4::tree::TerminalNode *NUM();
+    antlr4::tree::TerminalNode *REAL();
     antlr4::tree::TerminalNode *ID();
 
 

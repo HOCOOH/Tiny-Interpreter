@@ -6,7 +6,7 @@
 class TinyCodeVisitor : public TinyBaseVisitor {
 
 public:
-    TinyCodeVisitor(const Compiler* compiler) : compiler(compiler) {}
+    TinyCodeVisitor(const std::string filename, const Compiler* compiler) : filename(filename), compiler(compiler) {}
 
     antlrcpp::Any visitDecl(TinyParser::DeclContext *ctx);
     antlrcpp::Any visitRead_stmt(TinyParser::Read_stmtContext *ctx);
@@ -21,6 +21,7 @@ public:
     antlrcpp::Any visitFactor(TinyParser::FactorContext *ctx);
 
 private:
+    const std::string filename;
     const Compiler* compiler;
     
 };

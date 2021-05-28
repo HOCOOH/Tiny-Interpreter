@@ -79,8 +79,10 @@ WRITE   : 'write';
 CHAR    : 'char';
 INT     : 'int';
 FLOAT   : 'float';
+TRUE    : 'true';
+FALSE   : 'false';
 
-REAL    : [0-9]+.[0-9]+;
-NUM     : [0-9]+;
+REAL    : ([1-9][0-9]* | '0')'.'[0-9]+;
+NUM     : [1-9][0-9]* | '0';
 ID      : [a-zA-Z]([a-zA-Z0-9])*;
 WS      : [ \t\r\n]+ -> skip;

@@ -1,4 +1,4 @@
 int aaa;
 float bbb;
 read aaa;
-write aaa < 2 * 3 + 1.111;
+write (4 * 2 + aaa) * -2 + 7;

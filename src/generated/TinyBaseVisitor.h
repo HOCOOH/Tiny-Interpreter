@@ -1,5 +1,5 @@
 
-// Generated from antlr/Tiny.g4 by ANTLR 4.9.2
+// Generated from Tiny.g4 by ANTLR 4.9.2
 
 #pragma once
 
