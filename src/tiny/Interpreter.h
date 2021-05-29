@@ -1,19 +1,22 @@
 #pragma once
 
+#include <iostream>
+#include <memory>
+#include <cmath>
 #include "antlr4-runtime.h"
 #include "TinyLexer.h"
 #include "TinyParser.h"
 #include "TinyBaseVisitor.h"
 #include "SymbolTable.h"
 
-class Compiler {
+class Interpreter {
 
 public:
-    Compiler() {
+    Interpreter() {
         symbolTable = std::make_shared<SymbolTable>();
     }
 
-    int compile(void);
+    int interpret(void);
     void addSource(const char* filename);
     void readSource(const std::string  &filename,std::string &file_contents);
 
@@ -26,7 +29,7 @@ public:
     }
 
 private:
-    std::list<std::string> sources;             /* List of source filenames to compile */
+    std::list<std::string> sources;             /* List of source filenames to interpret */
     std::shared_ptr<SymbolTable> symbolTable;   /* Symbol Table */
     //SymbolTable symbolTable; /*
 /*

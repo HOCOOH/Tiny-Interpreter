@@ -2,96 +2,124 @@
 #include <sstream>
 
 antlrcpp::Any TinyCodeVisitor::visitDecl(TinyParser::DeclContext *ctx) {
-    if (ctx->type()) {
+    try {
         std::string type = ctx->type()->getText();
         std::string name = ctx->ID()->getText();
         // std::cout << type << " " << name << std::endl;
-        if (type == "int") {
-            std::unique_ptr<Value> val = std::make_unique<ValueInt>(0);
-            compiler->symbolTable->AddIdentifier(name, std::move(val));
+        if (ctx->type()->INT()) {
+            interpreter->symbolTable->AddIdentifier(name, std::make_unique<Value>(Value::INT, 0));
         }
-        else if (type == "float") { 
-            //std::unique_ptr<Value> val = std::make_unique<ValueFloat>(0.0);
-            //compiler->symbolTable->AddIdentifier(name, std::move(val));
-            compiler->symbolTable->AddIdentifier(name, std::make_unique<ValueFloat>(0.0));
+        else if (ctx->type()->FLOAT()) { 
+            interpreter->symbolTable->AddIdentifier(name, std::make_unique<Value>(Value::FLOAT, 0.0));
+        }
+        else if (ctx->type()->CHAR()) {
+            interpreter->symbolTable->AddIdentifier(name, std::make_unique<Value>(Value::CHAR, char(0)));
+        }
+        else if (ctx->type()->BOOL()) {
+            interpreter->symbolTable->AddIdentifier(name, std::make_unique<Value>(Value::BOOL, false));
         }
         else {
-            std::cerr << "Unknown identifier type" << std::endl;
-            exit(-1);
+            throw TinyException("Unknown Identifier Type: " + type);
         }
+        // initialize
+        if (ctx->ASSIGN()) {
+            std::shared_ptr<Identifier> id = interpreter->symbolTable->Get(name);
+            auto exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
+            id->SetValue(std::make_unique<Value>(exp->GetType(), exp->GetVal()));
+        }
+    } catch (TinyException& e) {
+        std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
+        exit(-1);
     }
     return TinyBaseVisitor::visitDecl(ctx);
-    
 }
 
 antlrcpp::Any TinyCodeVisitor::visitRead_stmt(TinyParser::Read_stmtContext *ctx) {
     std::string name = ctx->ID()->getText();
     try {
-        std::shared_ptr<Identifier> id = compiler->symbolTable->Get(name);
+        std::shared_ptr<Identifier> id = interpreter->symbolTable->Get(name);
         if (id->GetType() == Value::INT) {
             int val = 0;
             std::cin >> val;
-            id->SetValue(std::make_unique<ValueInt>(val));
+            id->SetValue(std::make_unique<Value>(Value::INT, val));
         }
-        if (id->GetType() == Value::FLOAT) {
+        else if (id->GetType() == Value::FLOAT) {
             double val = 0.0;
             std::cin >> val;
-            id->SetValue(std::make_unique<ValueFloat>(val));
+            id->SetValue(std::make_unique<Value>(Value::FLOAT, val));
+        }
+        else if (id->GetType() == Value::CHAR) {
+            char val = 0;
+            std::cin >> val;
+            id->SetValue(std::make_unique<Value>(Value::CHAR, val));
+        }
+        else if (id->GetType() == Value::BOOL) {
+            bool val = false;
+            std::cin >> val;
+            id->SetValue(std::make_unique<Value>(Value::BOOL, val));
         }
     } catch(TinyException& e) {
-        std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << '\n';
+        std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
         exit(-1);
     }
     return TinyBaseVisitor::visitRead_stmt(ctx);
 }
 
 antlrcpp::Any TinyCodeVisitor::visitWrite_stmt(TinyParser::Write_stmtContext *ctx) {
-    std::shared_ptr<Value> ret = visitExp(ctx->exp());
+    auto ret = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
     ret->Dump();
-    if (ret->GetType() == Value::INT) {
-        int retVal = ret->GetVal();
-        std::cout << retVal << std::endl;
-        return 0;
-    }
-    else if (ret->GetType() == Value::FLOAT) {
-        double retVal = ret->GetVal();
-        std::cout << retVal << std::endl;
-        return 0;
-    }
-    else if (ret->GetType() == Value::BOOL) {
-        bool retVal = ret->GetVal();
-        std::cout << retVal << std::endl;
-        return 0;
-    }
-    return TinyBaseVisitor::visitWrite_stmt(ctx);
+    return 0;
+    // return TinyBaseVisitor::visitWrite_stmt(ctx);
 }
 
 antlrcpp::Any TinyCodeVisitor::visitAssign_stmt(TinyParser::Assign_stmtContext *ctx) {
     std::string name = ctx->ID()->getText();
     try {
-        std::shared_ptr<Identifier> id = compiler->symbolTable->Get(name);
-        std::shared_ptr<Value> right = visitExp(ctx->exp());
-
+        std::shared_ptr<Identifier> id = interpreter->symbolTable->Get(name);
+        auto exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
+        id->SetValue(std::make_unique<Value>(exp->GetType(), exp->GetVal()));
     } catch(TinyException& e) {
-        std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << '\n';
+        std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
         exit(-1);
     }
     return TinyBaseVisitor::visitAssign_stmt(ctx);
 }
 
 antlrcpp::Any TinyCodeVisitor::visitIf_stmt(TinyParser::If_stmtContext *ctx) {
-
-    return TinyBaseVisitor::visitIf_stmt(ctx);
+    auto cond = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
+    if (cond->GetType() != Value::BOOL) {
+        std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): Expected Bool Expression" << std::endl;
+        exit(-1);
+    }
+    if (cond->GetVal().as<bool>()) {
+        visitStmts(ctx->stmts(0));
+    }
+    else if (ctx->ELSE()) {
+        visitStmts(ctx->stmts(1));
+    }
+    return 0;
+    // return TinyBaseVisitor::visitIf_stmt(ctx);
 }
 
 antlrcpp::Any TinyCodeVisitor::visitRepeat_stmt(TinyParser::Repeat_stmtContext *ctx) {
+    while (true) {
+        visitStmts(ctx->stmts());
+        auto cond = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
+        if (cond->GetType() != Value::BOOL) {
+            std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): Expected Bool Expression" << std::endl;
+            exit(-1);
+        }
+        if (cond->GetVal().as<bool>()) {
+            return 0;
+        }
+    }
     return TinyBaseVisitor::visitRepeat_stmt(ctx);
 }
 
 antlrcpp::Any TinyCodeVisitor::visitExp(TinyParser::ExpContext *ctx) {
     if (ctx->simple_exp(0) && ctx->simple_exp(1)) {
-        std::shared_ptr<Value> left = visitSimple_exp(ctx->simple_exp(0));
-        std::shared_ptr<Value> right = visitSimple_exp(ctx->simple_exp(1));
+        auto left = visitSimple_exp(ctx->simple_exp(0)).as<std::shared_ptr<Value>>();
+        auto right = visitSimple_exp(ctx->simple_exp(1)).as<std::shared_ptr<Value>>();
         return Value::BinaryCalculate(left, right, ctx->op->getType());
     }
     if (ctx->simple_exp(0)) {
@@ -102,8 +130,8 @@ antlrcpp::Any TinyCodeVisitor::visitExp(TinyParser::ExpContext *ctx) {
 
 antlrcpp::Any TinyCodeVisitor::visitSimple_exp(TinyParser::Simple_expContext *ctx) {
     if (ctx->simple_exp()) {
-        std::shared_ptr<Value> left = visitSimple_exp(ctx->simple_exp());
-        std::shared_ptr<Value> right = visitTerm(ctx->term());
+        auto left = visitSimple_exp(ctx->simple_exp()).as<std::shared_ptr<Value>>();
+        auto right = visitTerm(ctx->term()).as<std::shared_ptr<Value>>();
         return Value::BinaryCalculate(left, right, ctx->op->getType());
     }
     else {
@@ -114,8 +142,8 @@ antlrcpp::Any TinyCodeVisitor::visitSimple_exp(TinyParser::Simple_expContext *ct
 
 antlrcpp::Any TinyCodeVisitor::visitTerm(TinyParser::TermContext *ctx) {
     if (ctx->term()) {
-        std::shared_ptr<Value> left = visitTerm(ctx->term());
-        std::shared_ptr<Value> right = visitUnary(ctx->unary());
+        auto left = visitTerm(ctx->term()).as<std::shared_ptr<Value>>();
+        auto right = visitUnary(ctx->unary()).as<std::shared_ptr<Value>>();
         return Value::BinaryCalculate(left, right, ctx->op->getType());
     }
     else {
@@ -126,15 +154,9 @@ antlrcpp::Any TinyCodeVisitor::visitTerm(TinyParser::TermContext *ctx) {
 
 antlrcpp::Any TinyCodeVisitor::visitUnary(TinyParser::UnaryContext *ctx) {
     if (ctx->MINUS()) {
-        std::shared_ptr<Value> factor = visitUnary(ctx->unary());
-        if (factor->GetType() == Value::INT) {
-            int retVal = factor->GetVal();
-            return std::shared_ptr<Value>(std::make_shared<ValueInt>(retVal * -1));
-        }
-        else if (factor->GetType() == Value::FLOAT) {
-            double retVal = factor->GetVal();
-            return std::shared_ptr<Value>(std::make_shared<ValueFloat>(retVal * -1));
-        }
+        auto unary = visitUnary(ctx->unary()).as<std::shared_ptr<Value>>();
+        auto tmp = std::make_shared<Value>(Value::INT, -1);
+        return Value::BinaryCalculate(unary, tmp, TinyLexer::MULT);
     }
     if (ctx->factor()) {
         return visitFactor(ctx->factor());
@@ -151,31 +173,28 @@ antlrcpp::Any TinyCodeVisitor::visitFactor(TinyParser::FactorContext *ctx) {
         ss << ctx->NUM()->getText();
         int val;
         ss >> val;
-        std::shared_ptr<Value> ret = std::make_shared<ValueInt>(val);
-        return ret;
+        return std::make_shared<Value>(Value::INT, val);
     }
     if (ctx->REAL()) {
         std::stringstream ss;
         ss << ctx->REAL()->getText();
         double val;
         ss >> val;
-        std::shared_ptr<Value> ret = std::make_shared<ValueFloat>(val);
-        return ret;
+        return std::make_shared<Value>(Value::FLOAT, val);
+    }
+    if (ctx->TRUE()) {
+        return std::make_shared<Value>(Value::BOOL, true);
+    }
+    if (ctx->FALSE()) {
+        return std::make_shared<Value>(Value::BOOL, false);
     }
     if (ctx->ID()) {
         std::string name = ctx->ID()->getText();
         try {
-            std::shared_ptr<Identifier> id = compiler->symbolTable->Get(name);
-            if (id->GetType() == Value::INT) {
-                std::shared_ptr<Value> ret = std::make_shared<ValueInt>(int(id->GetValue()));
-                return ret;
-            }
-            if (id->GetType() == Value::FLOAT) {
-                std::shared_ptr<Value> ret = std::make_shared<ValueFloat>(double(id->GetValue()));
-                return ret;
-            }
+            std::shared_ptr<Identifier> id = interpreter->symbolTable->Get(name);
+            return id->GetValue();
         } catch(TinyException& e) {
-            std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << '\n';
+            std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
             exit(-1);
         }
     }
@@ -183,64 +202,44 @@ antlrcpp::Any TinyCodeVisitor::visitFactor(TinyParser::FactorContext *ctx) {
 }
 
 std::shared_ptr<Value> Value::BinaryCalculate(std::shared_ptr<Value> left, std::shared_ptr<Value> right, size_t op) {
-    Value::Type typeL = left->GetType();
-    Value::Type typeR = right->GetType();
-    switch (op) {
-        case TinyLexer::PLUS:
-            if (left->GetType() == Value::FLOAT || right->GetType() == Value::FLOAT) {
-                double retVal = double(left->GetVal()) + double(right->GetVal());
-                return std::shared_ptr<Value>(std::make_shared<ValueFloat>(retVal));
+    try {
+        Value::Type typeL = left->GetType();
+        Value::Type typeR = right->GetType();
+        Value::Type typeRet = typeL < typeR ? typeL : typeR;
+        double valL = left->GetValDouble();
+        double valR = right->GetValDouble();
+        // bool
+        if (op == TinyLexer::GT || op == TinyLexer::EQUAL || op == TinyLexer::LT) {
+            switch (op) {
+                case TinyLexer::GT: return std::make_shared<Value>(Value::BOOL, (valL > valR));
+                case TinyLexer::EQUAL: return std::make_shared<Value>(Value::BOOL, (valL == valR));
+                case TinyLexer::LT: return std::make_shared<Value>(Value::BOOL, (valL < valR));
             }
-            else {
-                int retVal = int(left->GetVal()) + int(right->GetVal());
-                return std::shared_ptr<Value>(std::make_shared<ValueInt>(retVal));
-            }
-            break;
-        case TinyLexer::MINUS:
-            if (left->GetType() == Value::FLOAT || right->GetType() == Value::FLOAT) {
-                double retVal = double(left->GetVal()) - double(right->GetVal());
-                return std::shared_ptr<Value>(std::make_shared<ValueFloat>(retVal));
-            }
-            else {
-                int retVal = int(left->GetVal()) - int(right->GetVal());
-                return std::shared_ptr<Value>(std::make_shared<ValueInt>(retVal));
-            }
-            break;
-        case TinyLexer::MULT:
-            if (left->GetType() == Value::FLOAT || right->GetType() == Value::FLOAT) {
-                double retVal = double(left->GetVal()) * double(right->GetVal());
-                return std::shared_ptr<Value>(std::make_shared<ValueFloat>(retVal));
-            }
-            else {
-                int retVal = int(left->GetVal()) * int(right->GetVal());
-                return std::shared_ptr<Value>(std::make_shared<ValueInt>(retVal));
-            }
-            break;
-        case TinyLexer::DIV:
-            if (left->GetType() == Value::FLOAT || right->GetType() == Value::FLOAT) {
-                double retVal = double(left->GetVal()) / double(right->GetVal());
-                return std::shared_ptr<Value>(std::make_shared<ValueFloat>(retVal));
-            }
-            else {
-                int retVal = int(left->GetVal()) / int(right->GetVal());
-                return std::shared_ptr<Value>(std::make_shared<ValueInt>(retVal));
-            }
-            break;
-        case TinyLexer::GT: {
-            bool retVal = double(left->GetVal()) > double(right->GetVal());
-            return std::shared_ptr<Value>(std::make_shared<ValueBool>(retVal));
         }
-        case TinyLexer::LT: {
-            left->Dump();
-            right->Dump();
-            double valL = left->GetVal();
-            bool retVal = (double(left->GetVal()) < int(right->GetVal()));
-            return std::shared_ptr<Value>(std::make_shared<ValueBool>(retVal));
+        // math
+        double valRet = 0;
+        switch (op) {
+            case TinyLexer::PLUS: valRet = valL + valR; break;
+            case TinyLexer::MINUS: valRet = valL - valR; break;
+            case TinyLexer::MULT: valRet = valL * valR; break;
+            case TinyLexer::DIV: 
+                if (fabs(valR - 0) < Value::EPSILON) {
+                    throw TinyException("Devide 0");
+                }
+                valRet = valL / valR; 
+                break;
+            default: throw TinyException("Invalid Op: " + op);
         }
-        case TinyLexer::EQUAL: {
-            bool retVal = double(left->GetVal()) == double(right->GetVal());
-            return std::shared_ptr<Value>(std::make_shared<ValueBool>(retVal));
+    
+        switch (typeRet) {
+            case Value::FLOAT: return std::make_shared<Value>(typeRet, valRet);
+            case Value::INT: return std::make_shared<Value>(typeRet, static_cast<int>(valRet));
+            case Value::CHAR: return std::make_shared<Value>(typeRet, static_cast<char>(valRet));
+            case Value::BOOL: return std::make_shared<Value>(typeRet, static_cast<bool>(valRet));
+            default: throw TinyException("Invalid Type: " + typeRet);
         }
+    } catch(TinyException& e) {
+        std::cerr << "TinyERROR: " << e.GetMessage() << std::endl;
+        exit(-1);
     }
-    return nullptr;
 }

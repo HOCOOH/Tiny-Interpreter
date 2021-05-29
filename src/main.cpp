@@ -1,25 +1,13 @@
 #include <iostream>
-#include "Compiler.h"
-#include <any>
-
-void test() {
-    int intVal = 7;
-    antlrcpp::Any a = intVal;
-    double retVal = double(a.as<int>());
-
-}
+#include "Interpreter.h"
 
 int main(int argc, char *argv[]) {
-    /*
-    Compiler tiny_compiler;
+    Interpreter tiny_interpreter;
 
-    tiny_compiler.addSource("../test1.tiny");
+    // tiny_interpreter.addSource("../test1.tiny");
+    tiny_interpreter.addSource("../test2.tiny");
 
-    int exit_code = tiny_compiler.compile();
+    int exit_code = tiny_interpreter.interpret();
 
     exit(exit_code);
-    */
-
-   test();
-   return 0;
 }

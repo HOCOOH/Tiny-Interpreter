@@ -1,12 +1,12 @@
 #include <iostream>
 #include "TinyBaseVisitor.h"
-#include "Compiler.h"
+#include "Interpreter.h"
 
 
 class TinyCodeVisitor : public TinyBaseVisitor {
 
 public:
-    TinyCodeVisitor(const std::string filename, const Compiler* compiler) : filename(filename), compiler(compiler) {}
+    TinyCodeVisitor(const std::string filename, const Interpreter* interpreter) : filename(filename), interpreter(interpreter) {}
 
     antlrcpp::Any visitDecl(TinyParser::DeclContext *ctx);
     antlrcpp::Any visitRead_stmt(TinyParser::Read_stmtContext *ctx);
@@ -22,6 +22,6 @@ public:
 
 private:
     const std::string filename;
-    const Compiler* compiler;
+    const Interpreter* interpreter;
     
 };

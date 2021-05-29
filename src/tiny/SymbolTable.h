@@ -5,7 +5,7 @@
 #include <string>
 #include <memory>
 #include <exception>
-#include "Compiler.h"
+#include "Interpreter.h"
 
 class TinyException : public std::exception {
 
@@ -25,84 +25,57 @@ class Value {
 public:
     enum Type {
         FLOAT = 0,
-        CHAR = 1,
-        INT = 2,
+        INT = 1,
+        CHAR = 2,
         BOOL = 3
     };
-    Value(Type type) : _type(type) {} 
+    static const int EPSILON = 1e-8;
+    Value(Type type, antlrcpp::Any val) : _type(type), _val(val) {} 
     Type GetType() { return _type; }
     std::string GetTypeStr() {
         switch (_type) {
+            case FLOAT: return "FLOAT";
             case INT: return "INT";
             case CHAR: return "CHAR";
-            case FLOAT: return "FLOAT";
             case BOOL: return "BOOL";
             default: return "UNKNOWN";
         }
     }
-    virtual antlrcpp::Any GetVal() = 0;
-    virtual void Dump() = 0;
+    antlrcpp::Any GetVal() { return _val; }
+    double GetValDouble() {
+        switch (_type) {
+            case Value::FLOAT: return _val.as<double>();
+            case Value::INT: return static_cast<double>(_val.as<int>());
+            case Value::CHAR: return static_cast<double>(_val.as<char>());
+            case Value::BOOL: return static_cast<double>(_val.as<bool>());
+            default: throw TinyException("Unknown Type: " + _type);
+        }
+    }
+    void Dump() {
+        switch (_type) {
+            case FLOAT: std::cout << _val.as<double>() << std::endl; break;
+            case INT: std::cout << _val.as<int>() << std::endl; break;
+            case CHAR: std::cout << _val.as<char>() << std::endl; break;
+            case BOOL: std::cout << (_val.as<bool>() ? "true" : "false") << std::endl; break;
+            default: return;
+        }
+    }
+    void DumpWithType() {
+        switch (_type) {
+            case FLOAT: std::cout << this->GetTypeStr() << "  " << _val.as<double>() << std::endl; break;
+            case INT: std::cout << this->GetTypeStr() << "  " << _val.as<int>() << std::endl; break;
+            case CHAR: std::cout << this->GetTypeStr() << "  " << _val.as<char>() << std::endl; break;
+            case BOOL: std::cout << this->GetTypeStr() << "  " << (_val.as<bool>() ? "true" : "false") << std::endl; break;
+            default: return;
+        }
+    }
+
     static std::shared_ptr<Value> BinaryCalculate(std::shared_ptr<Value> left, std::shared_ptr<Value> right, size_t op);
     
 private:
     Type _type;
+    antlrcpp::Any _val;
 
-};
-
-class ValueInt : public Value {
-
-public:
-    ValueInt(int val) : Value(Value::INT), _val(val) {}
-    virtual antlrcpp::Any GetVal() { return _val; }
-    virtual void Dump() {
-        int val = this->GetVal();
-        std::cout << this->GetTypeStr() << " " << val << std::endl;
-    }
-
-private:
-    int _val;
-};
-
-class ValueChar : public Value {
-
-public:
-    ValueChar(char val) : Value(Value::CHAR), _val(val) {}
-    virtual antlrcpp::Any GetVal() { return _val; }
-    virtual void Dump() {
-        char val = this->GetVal();
-        std::cout << this->GetTypeStr() << " " << val << std::endl;
-    }
-
-private:
-    char _val;
-};
-
-class ValueFloat : public Value {
-
-public:
-    ValueFloat(double val) : Value(Value::FLOAT), _val(val) {}
-    virtual antlrcpp::Any GetVal() { return _val; }
-    virtual void Dump() {
-        double val = this->GetVal();
-        std::cout << this->GetTypeStr() << " " << val << std::endl;
-    }
-
-private:
-    double _val;
-};
-
-class ValueBool : public Value {
-
-public:
-    ValueBool(bool val) : Value(Value::BOOL), _val(val) {}
-    virtual antlrcpp::Any GetVal() { return _val; }
-    virtual void Dump() {
-        bool val = this->GetVal();
-        std::cout << this->GetTypeStr() << " " << val << std::endl;
-    }
-
-private:
-    bool _val;
 };
 
 class Identifier {
@@ -112,14 +85,39 @@ public:
     std::string GetName() { return name; }
     std::string GetTypeStr() { return value->GetTypeStr(); }
     Value::Type GetType() { return value->GetType(); }
-    antlrcpp::Any GetValue() { return value->GetVal(); }
+    std::shared_ptr<Value> GetValue() {
+        switch (value->GetType()) {
+             case Value::FLOAT: return std::make_shared<Value>(Value::FLOAT, value->GetVal().as<double>());
+             case Value::INT: return std::make_shared<Value>(Value::INT, value->GetVal().as<int>());
+             case Value::CHAR: return std::make_shared<Value>(Value::CHAR, value->GetVal().as<char>());
+             case Value::BOOL: return std::make_shared<Value>(Value::BOOL, value->GetVal().as<bool>());
+             default: return nullptr;
+        }
+    }
+
     void SetValue(std::unique_ptr<Value> valueNew) {
-        value.reset();
-        value = std::move(valueNew);
+        if (valueNew->GetType() == value->GetType()) {
+            value.reset();
+            value = std::move(valueNew);
+        }
+        else if (valueNew->GetType() > value->GetType()) {
+            double val = valueNew->GetValDouble();
+            Value::Type type = value->GetType();
+            value.reset();
+            switch (type) {
+                case Value::FLOAT: value = std::make_unique<Value>(type, val); break;
+                case Value::INT: value = std::make_unique<Value>(type, static_cast<int>(val)); break;
+                case Value::CHAR: value = std::make_unique<Value>(type, static_cast<char>(val)); break;
+                case Value::BOOL: value = std::make_unique<Value>(type, static_cast<bool>(val)); break;
+            }
+        }
+        else {
+            throw TinyException("Bad_cast: Assign a(an) " + valueNew->GetTypeStr() + " value to a(an) " + value->GetTypeStr() + " variable");
+        }
     }
     void Dump() {
         std::cout << this->GetName() << ": ";
-        value->Dump();
+        value->DumpWithType();
     }
 
 private:
@@ -159,4 +157,3 @@ private:
     std::map<std::string, std::shared_ptr<Identifier>> idTable;
 
 };
-

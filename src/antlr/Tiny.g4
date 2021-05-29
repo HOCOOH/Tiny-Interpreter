@@ -6,9 +6,11 @@ decls   : decls decl
         | decl
         ;
 
-decl    : type ID SEMI;
+decl    : type ID SEMI
+        | type ID ASSIGN exp SEMI
+        ;
 
-type    : INT | CHAR | FLOAT;
+type    : INT | CHAR | FLOAT | BOOL;
 
 stmts   : stmts stmt
         | stmt
@@ -52,6 +54,8 @@ unary       : MINUS unary
 factor      : LPAR exp RPAR
             | NUM
             | REAL
+            | TRUE
+            | FALSE
             | ID
             ;
 
@@ -79,6 +83,7 @@ WRITE   : 'write';
 CHAR    : 'char';
 INT     : 'int';
 FLOAT   : 'float';
+BOOL    : 'bool';
 TRUE    : 'true';
 FALSE   : 'false';
 

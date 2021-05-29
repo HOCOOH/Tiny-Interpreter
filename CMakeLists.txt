@@ -18,9 +18,9 @@ add_executable(Tiny
     src/main.cpp
     src/generated/TinyLexer.cpp
     src/generated/TinyParser.cpp
-    src/tiny/Compiler.cpp
+    src/tiny/Interpreter.cpp
     src/tiny/Parser.cpp
 )
 
-target_link_libraries(Tiny antlr4-runtime.a -lrt -ldl -ltinfo -lpthread -lz -lm)
+target_link_libraries(Tiny antlr4-runtime.a)
 

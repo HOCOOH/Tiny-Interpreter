@@ -15,7 +15,8 @@ public:
     PLUS = 1, MINUS = 2, EQUAL = 3, GT = 4, LT = 5, MULT = 6, DIV = 7, LPAR = 8, 
     RPAR = 9, ASSIGN = 10, SEMI = 11, IF = 12, THEN = 13, ELSE = 14, END = 15, 
     REPEAT = 16, UNTIL = 17, READ = 18, WRITE = 19, CHAR = 20, INT = 21, 
-    FLOAT = 22, REAL = 23, NUM = 24, ID = 25, WS = 26
+    FLOAT = 22, BOOL = 23, TRUE = 24, FALSE = 25, REAL = 26, NUM = 27, ID = 28, 
+    WS = 29
   };
 
   enum {
@@ -87,6 +88,8 @@ public:
     TypeContext *type();
     antlr4::tree::TerminalNode *ID();
     antlr4::tree::TerminalNode *SEMI();
+    antlr4::tree::TerminalNode *ASSIGN();
+    ExpContext *exp();
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -102,6 +105,7 @@ public:
     antlr4::tree::TerminalNode *INT();
     antlr4::tree::TerminalNode *CHAR();
     antlr4::tree::TerminalNode *FLOAT();
+    antlr4::tree::TerminalNode *BOOL();
 
 
     virtual antlrcpp::Any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
@@ -301,6 +305,8 @@ public:
     antlr4::tree::TerminalNode *RPAR();
     antlr4::tree::TerminalNode *NUM();
     antlr4::tree::TerminalNode *REAL();
+    antlr4::tree::TerminalNode *TRUE();
+    antlr4::tree::TerminalNode *FALSE();
     antlr4::tree::TerminalNode *ID();
 
 

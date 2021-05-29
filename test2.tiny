@@ -1,4 +1,6 @@
-int aaa;
-float bbb;
-read aaa;
-write (4 * 2 + aaa) * -2 + 7;
+int aaa := 1;
+float aaa;
+repeat
+    aaa := aaa * 2;
+    write aaa;
+until aaa > 1000;

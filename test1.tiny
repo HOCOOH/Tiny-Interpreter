@@ -1,4 +1,11 @@
 int aaa;
 float bbb;
-read aaa;
-write aaa < 2 * 3 + 1.111;
+aaa := 12;
+bbb := 12;
+write aaa;
+if (aaa * 2 < 15) then
+    write true;
+else
+    write false;
+end
+write -1 * 10 + aaa - 2 * 3 + 1.111;

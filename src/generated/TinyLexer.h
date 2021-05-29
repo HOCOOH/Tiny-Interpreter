@@ -15,7 +15,8 @@ public:
     PLUS = 1, MINUS = 2, EQUAL = 3, GT = 4, LT = 5, MULT = 6, DIV = 7, LPAR = 8, 
     RPAR = 9, ASSIGN = 10, SEMI = 11, IF = 12, THEN = 13, ELSE = 14, END = 15, 
     REPEAT = 16, UNTIL = 17, READ = 18, WRITE = 19, CHAR = 20, INT = 21, 
-    FLOAT = 22, REAL = 23, NUM = 24, ID = 25, WS = 26
+    FLOAT = 22, BOOL = 23, TRUE = 24, FALSE = 25, REAL = 26, NUM = 27, ID = 28, 
+    WS = 29
   };
 
   explicit TinyLexer(antlr4::CharStream *input);
