@@ -7,23 +7,23 @@ antlrcpp::Any TinyCodeVisitor::visitDecl(TinyParser::DeclContext *ctx) {
         std::string name = ctx->ID()->getText();
         // std::cout << type << " " << name << std::endl;
         if (ctx->type()->INT()) {
-            interpreter->symbolTable->AddIdentifier(name, std::make_unique<Value>(Value::INT, 0));
+            interpreter->symbolTable->AddIdentifier(name, Value::INT);
         }
         else if (ctx->type()->FLOAT()) { 
-            interpreter->symbolTable->AddIdentifier(name, std::make_unique<Value>(Value::FLOAT, 0.0));
+            interpreter->symbolTable->AddIdentifier(name, Value::FLOAT);
         }
         else if (ctx->type()->CHAR()) {
-            interpreter->symbolTable->AddIdentifier(name, std::make_unique<Value>(Value::CHAR, char(0)));
+            interpreter->symbolTable->AddIdentifier(name, Value::CHAR);
         }
         else if (ctx->type()->BOOL()) {
-            interpreter->symbolTable->AddIdentifier(name, std::make_unique<Value>(Value::BOOL, false));
+            interpreter->symbolTable->AddIdentifier(name, Value::BOOL);
         }
         else {
             throw TinyException("Unknown Identifier Type: " + type);
         }
         // initialize
         if (ctx->ASSIGN()) {
-            std::shared_ptr<Identifier> id = interpreter->symbolTable->Get(name);
+            std::shared_ptr<Identifier> id = interpreter->symbolTable->GetId(name);
             auto exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
             id->SetValue(std::make_unique<Value>(exp->GetType(), exp->GetVal()));
         }
@@ -34,10 +34,20 @@ antlrcpp::Any TinyCodeVisitor::visitDecl(TinyParser::DeclContext *ctx) {
     return TinyBaseVisitor::visitDecl(ctx);
 }
 
+antlrcpp::Any TinyCodeVisitor::visitStmts(TinyParser::StmtsContext *ctx) {
+    for (auto stmt : ctx->stmt()) {
+        antlrcpp::Any retVal = visitStmt(stmt);
+        if (stmt->return_stmt()) {
+            return retVal;
+        }
+    }
+    return TinyBaseVisitor::visitStmts(ctx);
+}
+
 antlrcpp::Any TinyCodeVisitor::visitRead_stmt(TinyParser::Read_stmtContext *ctx) {
     std::string name = ctx->ID()->getText();
     try {
-        std::shared_ptr<Identifier> id = interpreter->symbolTable->Get(name);
+        std::shared_ptr<Identifier> id = interpreter->symbolTable->GetId(name);
         if (id->GetType() == Value::INT) {
             int val = 0;
             std::cin >> val;
@@ -75,7 +85,7 @@ antlrcpp::Any TinyCodeVisitor::visitWrite_stmt(TinyParser::Write_stmtContext *ct
 antlrcpp::Any TinyCodeVisitor::visitAssign_stmt(TinyParser::Assign_stmtContext *ctx) {
     std::string name = ctx->ID()->getText();
     try {
-        std::shared_ptr<Identifier> id = interpreter->symbolTable->Get(name);
+        std::shared_ptr<Identifier> id = interpreter->symbolTable->GetId(name);
         auto exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
         id->SetValue(std::make_unique<Value>(exp->GetType(), exp->GetVal()));
     } catch(TinyException& e) {
@@ -114,6 +124,83 @@ antlrcpp::Any TinyCodeVisitor::visitRepeat_stmt(TinyParser::Repeat_stmtContext *
         }
     }
     return TinyBaseVisitor::visitRepeat_stmt(ctx);
+}
+
+antlrcpp::Any TinyCodeVisitor::visitCall_stmt(TinyParser::Call_stmtContext *ctx) {
+    return visitFunc_call(ctx->func_call(), false);
+    // return TinyBaseVisitor::visitCall_stmt(ctx);
+}
+
+antlrcpp::Any TinyCodeVisitor::visitReturn_stmt(TinyParser::Return_stmtContext *ctx) {
+    std::shared_ptr<Value> exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
+    return exp;
+    // return TinyBaseVisitor::visitReturn_stmt(ctx);
+}
+
+antlrcpp::Any TinyCodeVisitor::visitFunc_call(TinyParser::Func_callContext *ctx, bool isReturn) {
+    try {
+        std::string name = ctx->ID()->getText();
+        if (name == "main") {
+            throw TinyException("Can not call main function");
+        }
+
+        auto func = interpreter->symbolTable->GetFunc(name);
+        auto params = func->GetParams();
+        if (isReturn && func->GetReturnType() == Value::VOID) {
+            throw TinyException("Void function has no retuan value");
+        }
+        // check number of arguments
+        if (params.size() != ctx->args()->arg().size()) {
+            throw TinyException("Function" + name + "expect " + std::to_string(params.size()) + " parameters, but " + \
+                std::to_string(ctx->args()->arg().size()) + " is provided");
+        }
+
+        TinyCodeVisitor funcVisitor(filename, interpreter);
+        std::vector<std::shared_ptr<Value>> args;
+        // add args
+        visitArgs(ctx->args(), args);
+
+        std::map<std::string, std::shared_ptr<Identifier>> funcIdTable;
+        interpreter->symbolTable->PushIdTable(funcIdTable);
+
+        for (int i = 0; i < params.size(); ++i) {
+            interpreter->symbolTable->AddIdentifier(params[i]->GetName(), params[i]->GetType());
+            
+            auto id = interpreter->symbolTable->GetId(params[i]->GetName());
+            id->SetValue(std::make_unique<Value>(args[i]->GetType(), args[i]->GetVal()));
+        }
+
+        // execute
+        auto retVal = funcVisitor.visitFunc_body(func->GetEntry()).as<std::shared_ptr<Value>>();
+
+        // end
+        interpreter->symbolTable->PopIdTable();
+        return retVal;
+
+    } catch(TinyException& e) {
+        std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
+        exit(-1);
+    }
+    return TinyBaseVisitor::visitFunc_call(ctx);
+}
+
+antlrcpp::Any TinyCodeVisitor::visitArgs(TinyParser::ArgsContext *ctx, std::vector<std::shared_ptr<Value>>& args) {
+    try {
+        for (int i = 0; i < ctx->arg().size(); ++i) {
+            auto arg = visitArg(ctx->arg(i)).as<std::shared_ptr<Value>>();
+            args.push_back(arg);
+        }
+        return 0;
+    } catch(TinyException& e) {
+        std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
+        exit(-1);
+    }
+    // return TinyBaseVisitor::visitArgs(ctx);
+}
+
+antlrcpp::Any TinyCodeVisitor::visitArg(TinyParser::ArgContext *ctx) {
+    return visitExp(ctx->exp());
+    //return TinyBaseVisitor::visitArg(ctx);
 }
 
 antlrcpp::Any TinyCodeVisitor::visitExp(TinyParser::ExpContext *ctx) {
@@ -191,12 +278,15 @@ antlrcpp::Any TinyCodeVisitor::visitFactor(TinyParser::FactorContext *ctx) {
     if (ctx->ID()) {
         std::string name = ctx->ID()->getText();
         try {
-            std::shared_ptr<Identifier> id = interpreter->symbolTable->Get(name);
+            std::shared_ptr<Identifier> id = interpreter->symbolTable->GetId(name);
             return id->GetValue();
         } catch(TinyException& e) {
             std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
             exit(-1);
         }
+    }
+    if (ctx->func_call()) {
+        return visitFunc_call(ctx->func_call(), true);
     }
     return TinyBaseVisitor::visitFactor(ctx);
 }

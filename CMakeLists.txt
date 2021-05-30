@@ -20,6 +20,7 @@ add_executable(Tiny
     src/generated/TinyParser.cpp
     src/tiny/Interpreter.cpp
     src/tiny/Parser.cpp
+    src/tiny/Function.cpp
 )
 
 target_link_libraries(Tiny antlr4-runtime.a)

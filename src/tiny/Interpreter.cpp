@@ -54,9 +54,25 @@ int Interpreter::interpret() {
         TinyParser::ProgContext* tree = parser.prog();
         // std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
-        TinyCodeVisitor test(file, this);
-        test.visitProg(tree);
+        TinyDeclVisitor decl(file, this);
+        decl.visitProg(tree);
+
+        std::shared_ptr<TinyFunction> main = nullptr;
+        std::map<std::string, std::shared_ptr<Identifier>> mainIdTable;
+        try {
+            main = symbolTable->GetFunc("main");
+            symbolTable->PushIdTable(mainIdTable);
+            // symbolTable->idTable.push_back(idTableMain);
+        } catch(TinyException& e) {
+            std::cerr << "TinyERROR: " << file << ": Not find function 'main'" << std::endl;
+            exit(-1);
+        }
+
+        TinyCodeVisitor mainVisitor(file, this);
+        mainVisitor.visitFunc_body(main->GetEntry());
         symbolTable->Dump();
+
+        symbolTable->PopIdTable();
     }
     return 0;
 }

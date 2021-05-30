@@ -8,6 +8,9 @@
 #include "TinyParser.h"
 #include "TinyBaseVisitor.h"
 #include "SymbolTable.h"
+#include "Function.h"
+
+class Interpreter;
 
 class Interpreter {
 
@@ -31,12 +34,8 @@ public:
 private:
     std::list<std::string> sources;             /* List of source filenames to interpret */
     std::shared_ptr<SymbolTable> symbolTable;   /* Symbol Table */
-    //SymbolTable symbolTable; /*
-/*
-    friend class RpgDeclarationVisitor;
-    friend class RpgCodeVisitor;
-    friend class RpgVisitor;
-*/
+
+    friend class TinyDeclVisitor;
     friend class TinyCodeVisitor;
 };
 

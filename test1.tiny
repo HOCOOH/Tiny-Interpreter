@@ -1,11 +1,9 @@
-int aaa;
-float bbb;
-aaa := 12;
-bbb := 12;
-write aaa;
-if (aaa * 2 < 15) then
-    write true;
-else
-    write false;
-end
-write -1 * 10 + aaa - 2 * 3 + 1.111;
+int main() {
+    int aaa := 11;
+    int bbb := 54;
+    write add(aaa, bbb,);
+}
+
+int add(int a, int b,) {
+    return a + b;
+}

@@ -1,6 +1,13 @@
-int aaa := 1;
-float aaa;
-repeat
-    aaa := aaa * 2;
-    write aaa;
-until aaa > 1000;
+int main(int aaa, float bbb,) {
+    int aaa := 1;
+    float buffer;
+    buffer := 3.14159;
+    repeat
+        aaa := aaa * 2;
+        write aaa;
+    until aaa > 1000;
+}
+
+int add(int a, int b) {
+    return a + b;
+}

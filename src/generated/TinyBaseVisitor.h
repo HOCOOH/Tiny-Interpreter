@@ -19,6 +19,26 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual antlrcpp::Any visitFunctions(TinyParser::FunctionsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunction(TinyParser::FunctionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitParams(TinyParser::ParamsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitParam(TinyParser::ParamContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunc_body(TinyParser::Func_bodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual antlrcpp::Any visitDecls(TinyParser::DeclsContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -56,6 +76,26 @@ public:
   }
 
   virtual antlrcpp::Any visitWrite_stmt(TinyParser::Write_stmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitCall_stmt(TinyParser::Call_stmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitReturn_stmt(TinyParser::Return_stmtContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitFunc_call(TinyParser::Func_callContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitArgs(TinyParser::ArgsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual antlrcpp::Any visitArg(TinyParser::ArgContext *ctx) override {
     return visitChildren(ctx);
   }
 

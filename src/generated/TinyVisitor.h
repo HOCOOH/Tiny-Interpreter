@@ -21,6 +21,16 @@ public:
    */
     virtual antlrcpp::Any visitProg(TinyParser::ProgContext *context) = 0;
 
+    virtual antlrcpp::Any visitFunctions(TinyParser::FunctionsContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunction(TinyParser::FunctionContext *context) = 0;
+
+    virtual antlrcpp::Any visitParams(TinyParser::ParamsContext *context) = 0;
+
+    virtual antlrcpp::Any visitParam(TinyParser::ParamContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunc_body(TinyParser::Func_bodyContext *context) = 0;
+
     virtual antlrcpp::Any visitDecls(TinyParser::DeclsContext *context) = 0;
 
     virtual antlrcpp::Any visitDecl(TinyParser::DeclContext *context) = 0;
@@ -40,6 +50,16 @@ public:
     virtual antlrcpp::Any visitRead_stmt(TinyParser::Read_stmtContext *context) = 0;
 
     virtual antlrcpp::Any visitWrite_stmt(TinyParser::Write_stmtContext *context) = 0;
+
+    virtual antlrcpp::Any visitCall_stmt(TinyParser::Call_stmtContext *context) = 0;
+
+    virtual antlrcpp::Any visitReturn_stmt(TinyParser::Return_stmtContext *context) = 0;
+
+    virtual antlrcpp::Any visitFunc_call(TinyParser::Func_callContext *context) = 0;
+
+    virtual antlrcpp::Any visitArgs(TinyParser::ArgsContext *context) = 0;
+
+    virtual antlrcpp::Any visitArg(TinyParser::ArgContext *context) = 0;
 
     virtual antlrcpp::Any visitExp(TinyParser::ExpContext *context) = 0;
 
