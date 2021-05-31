@@ -2,6 +2,7 @@
 #include "Interpreter.h"
 
 int main(int argc, char *argv[]) {
+    // 检查参数
     if (argc != 2) {
         std::cerr << "Usage: " << argv[0] << " <sourcecode filename>";
         exit(-1);

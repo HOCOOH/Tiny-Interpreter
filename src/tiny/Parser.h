@@ -2,7 +2,9 @@
 #include "TinyBaseVisitor.h"
 #include "Interpreter.h"
 
-
+/*
+遍历并执行函数
+*/
 class TinyCodeVisitor : public TinyBaseVisitor {
 
 public:
@@ -29,8 +31,8 @@ public:
     antlrcpp::Any visitFactor(TinyParser::FactorContext *ctx);
 
 private:
-    const std::string filename;
-    const Interpreter* interpreter;
-    bool returnFlag;
+    const std::string filename;         // Visitor所解释的源文件名
+    const Interpreter* interpreter;     // Visitor所属的解释器
+    bool returnFlag;                    // 返回标志位，用于return语句的实现
     
 };

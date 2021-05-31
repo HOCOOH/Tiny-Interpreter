@@ -32,7 +32,7 @@ int Interpreter::interpret() {
     std::string file_contents;
 
     for (std::string const& file: this->sources) {
-        std::cout << "Compiling file:" << file << std::endl;
+        std::cout << "Interpreting file:" << file << std::endl;
         readSource(file,file_contents);
 
         antlr4::ANTLRInputStream input(file_contents);
@@ -50,29 +50,32 @@ int Interpreter::interpret() {
 
         TinyParser parser(&tokens);
 
-        // antlr4::tree::ParseTree *tree = parser.prog();
         TinyParser::ProgContext* tree = parser.prog();
         // std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
+        // pass 1: 查找所有函数定义并添加到符号表
         TinyDeclVisitor decl(file, this);
         decl.visitProg(tree);
+        // symbolTable->Dump();
 
+        // 在符号表中查找main函数
         std::shared_ptr<TinyFunction> main = nullptr;
         std::map<std::string, std::shared_ptr<Identifier>> mainIdTable;
         try {
             main = symbolTable->GetFunc("main");
-            symbolTable->PushIdTable(mainIdTable);
+            symbolTable->PushIdTable(mainIdTable);  // 将main函数的符号表压栈
             // symbolTable->idTable.push_back(idTableMain);
         } catch(TinyException& e) {
             std::cerr << "TinyERROR: " << file << ": Not find function 'main'" << std::endl;
             exit(-1);
         }
 
+        // pass 2: 执行main函数
         TinyCodeVisitor mainVisitor(file, this);
         mainVisitor.visitFunc_body(main->GetEntry());
-        //symbolTable->Dump();
+        // symbolTable->Dump();
 
-        symbolTable->PopIdTable();
+        symbolTable->PopIdTable();  // 弹出main函数的符号表
     }
     return 0;
 }

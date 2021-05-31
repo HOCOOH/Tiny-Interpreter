@@ -11,33 +11,23 @@
 #include "Function.h"
 
 class Interpreter;
-
 class Interpreter {
 
 public:
     Interpreter() {
         symbolTable = std::make_shared<SymbolTable>();
     }
-
+    /* Start interpret */
     int interpret(void);
+    /* Add source file */
     void addSource(const char* filename);
+    /* Read source file */
     void readSource(const std::string  &filename,std::string &file_contents);
 
-    std::string getFilename(const std::string filename) {
-        size_t i = filename.rfind('/', filename.length());
-        if (i != std::string::npos) {
-            return filename.substr(i+1, filename.length() - i);
-        }
-        return filename;
-    }
-
 private:
-    std::list<std::string> sources;             /* List of source filenames to interpret */
-    std::shared_ptr<SymbolTable> symbolTable;   /* Symbol Table */
+    std::list<std::string> sources;             // 源文件列表
+    std::shared_ptr<SymbolTable> symbolTable;   // 符号表
 
     friend class TinyDeclVisitor;
     friend class TinyCodeVisitor;
 };
-
-
-
