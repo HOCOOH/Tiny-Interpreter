@@ -16,7 +16,7 @@ public:
     RPAR = 9, ASSIGN = 10, SEMI = 11, LBRA = 12, RBRA = 13, COMMA = 14, 
     IF = 15, THEN = 16, ELSE = 17, END = 18, REPEAT = 19, UNTIL = 20, READ = 21, 
     WRITE = 22, CHAR = 23, INT = 24, FLOAT = 25, BOOL = 26, TRUE = 27, FALSE = 28, 
-    VOID = 29, RETURN = 30, REAL = 31, NUM = 32, ID = 33, WS = 34
+    VOID = 29, RETURN = 30, REAL = 31, NUM = 32, ID = 33, WS = 34, COMMENT = 35
   };
 
   explicit TinyLexer(antlr4::CharStream *input);

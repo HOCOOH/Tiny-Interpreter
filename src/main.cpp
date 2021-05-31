@@ -2,12 +2,17 @@
 #include "Interpreter.h"
 
 int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        std::cerr << "Usage: " << argv[0] << " <sourcecode filename>";
+        exit(-1);
+    }
+
     Interpreter tiny_interpreter;
 
-    tiny_interpreter.addSource("../test3.tiny");
-    // tiny_interpreter.addSource("../test2.tiny");
+    tiny_interpreter.addSource(argv[1]);
+    // tiny_interpreter.addSource("../tinysrc/test1.tiny");
 
-    int exit_code = tiny_interpreter.interpret();
-
-    exit(exit_code);
+    tiny_interpreter.interpret();
+    
+    return 0;
 }

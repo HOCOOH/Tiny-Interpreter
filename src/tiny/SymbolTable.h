@@ -225,7 +225,7 @@ public:
     }
 
     void Dump() {
-        std::cout << "\nidTableSize = " << idTable.size() << std::endl;
+        std::cout << "\nidTableSize = " << idTable.back().size() << std::endl;
         for (auto &sym : idTable.back()) {
             sym.second->Dump();
         }

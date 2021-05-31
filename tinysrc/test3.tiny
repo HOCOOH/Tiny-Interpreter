@@ -1,0 +1,16 @@
+// Fibonacci
+int Fibonacci(int n,) {
+    if (n < 3) then
+        return 1;
+    else
+        return Fibonacci(n - 1,) + Fibonacci(n - 2,);
+    end
+}
+
+int main() {
+    int n := 1;
+    repeat
+        write Fibonacci(n,);
+        n := n + 1;
+    until n > 10;
+}

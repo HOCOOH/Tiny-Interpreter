@@ -70,7 +70,7 @@ int Interpreter::interpret() {
 
         TinyCodeVisitor mainVisitor(file, this);
         mainVisitor.visitFunc_body(main->GetEntry());
-        symbolTable->Dump();
+        //symbolTable->Dump();
 
         symbolTable->PopIdTable();
     }

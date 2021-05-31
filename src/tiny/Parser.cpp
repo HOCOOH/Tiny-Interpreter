@@ -1,6 +1,13 @@
 #include "Parser.h"
 #include <sstream>
 
+antlrcpp::Any TinyCodeVisitor::visitFunc_body(TinyParser::Func_bodyContext *ctx) {
+    visitDecls(ctx->decls());
+    return visitStmts(ctx->stmts());
+    // interpreter->symbolTable->Dump();
+    // return TinyBaseVisitor::visitFunc_body(ctx);
+}
+
 antlrcpp::Any TinyCodeVisitor::visitDecl(TinyParser::DeclContext *ctx) {
     try {
         std::string type = ctx->type()->getText();
@@ -19,7 +26,7 @@ antlrcpp::Any TinyCodeVisitor::visitDecl(TinyParser::DeclContext *ctx) {
             interpreter->symbolTable->AddIdentifier(name, Value::BOOL);
         }
         else {
-            throw TinyException("Unknown Identifier Type: " + type);
+            throw TinyException("Invalid Identifier Type: " + type);
         }
         // initialize
         if (ctx->ASSIGN()) {
@@ -27,21 +34,23 @@ antlrcpp::Any TinyCodeVisitor::visitDecl(TinyParser::DeclContext *ctx) {
             auto exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
             id->SetValue(std::make_unique<Value>(exp->GetType(), exp->GetVal()));
         }
+        return 0;
     } catch (TinyException& e) {
         std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
         exit(-1);
     }
-    return TinyBaseVisitor::visitDecl(ctx);
+    // return TinyBaseVisitor::visitDecl(ctx);
 }
 
 antlrcpp::Any TinyCodeVisitor::visitStmts(TinyParser::StmtsContext *ctx) {
     for (auto stmt : ctx->stmt()) {
         antlrcpp::Any retVal = visitStmt(stmt);
-        if (stmt->return_stmt()) {
+        if (returnFlag) {
             return retVal;
         }
     }
-    return TinyBaseVisitor::visitStmts(ctx);
+    return 0;
+    // return TinyBaseVisitor::visitStmts(ctx);
 }
 
 antlrcpp::Any TinyCodeVisitor::visitRead_stmt(TinyParser::Read_stmtContext *ctx) {
@@ -102,10 +111,10 @@ antlrcpp::Any TinyCodeVisitor::visitIf_stmt(TinyParser::If_stmtContext *ctx) {
         exit(-1);
     }
     if (cond->GetVal().as<bool>()) {
-        visitStmts(ctx->stmts(0));
+        return visitStmts(ctx->stmts(0));
     }
     else if (ctx->ELSE()) {
-        visitStmts(ctx->stmts(1));
+        return visitStmts(ctx->stmts(1));
     }
     return 0;
     // return TinyBaseVisitor::visitIf_stmt(ctx);
@@ -133,6 +142,7 @@ antlrcpp::Any TinyCodeVisitor::visitCall_stmt(TinyParser::Call_stmtContext *ctx)
 
 antlrcpp::Any TinyCodeVisitor::visitReturn_stmt(TinyParser::Return_stmtContext *ctx) {
     std::shared_ptr<Value> exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
+    returnFlag = true;
     return exp;
     // return TinyBaseVisitor::visitReturn_stmt(ctx);
 }
@@ -151,7 +161,7 @@ antlrcpp::Any TinyCodeVisitor::visitFunc_call(TinyParser::Func_callContext *ctx,
         }
         // check number of arguments
         if (params.size() != ctx->args()->arg().size()) {
-            throw TinyException("Function" + name + "expect " + std::to_string(params.size()) + " parameters, but " + \
+            throw TinyException("Function " + name + " expect " + std::to_string(params.size()) + " parameters, but " + \
                 std::to_string(ctx->args()->arg().size()) + " is provided");
         }
 
