@@ -116,7 +116,10 @@ private:
 class Identifier {
 
 public:
-    Identifier(std::string name, std::unique_ptr<Value> value) : name(name), value(std::move(value)) {}
+    Identifier(std::string name, std::unique_ptr<Value> val) : name(name), value(std::move(val)) {}
+    Identifier(std::string name, std::shared_ptr<Value> val) : name(name) {
+        value = std::make_unique<Value>(val->GetType(), val->GetVal());
+    }
 
     std::string GetName() { return name; }
     Value::Type GetType() { return value->GetType(); }
@@ -132,11 +135,13 @@ public:
     }
 
     /* 更新变量的值 */
-    void SetValue(std::unique_ptr<Value> valueNew) {
+    void SetValue(std::shared_ptr<Value> valueNew) {
+        // 相同类型直接赋值
         if (valueNew->GetType() == value->GetType()) {
             value.reset();
-            value = std::move(valueNew);
+            value = std::make_unique<Value>(valueNew->GetType(), valueNew->GetVal());
         }
+        // 单向赋值
         else if (valueNew->GetType() > value->GetType()) {
             double val = valueNew->GetValDouble();
             Value::Type type = value->GetType();
@@ -150,7 +155,7 @@ public:
             }
         }
         else {
-            throw TinyException("Bad_cast: Assign a(an) " + valueNew->GetTypeStr() + " value to a(an) " + value->GetTypeStr() + " variable");
+            throw TinyException("Bad_cast: " + valueNew->GetTypeStr() + " to " + value->GetTypeStr());
         }
     }
 
@@ -217,10 +222,15 @@ private:
 class SymbolTable {
 
 public:
+    // 变量表
+    typedef std::map<std::string, std::shared_ptr<Identifier>> IdTable;
+    // 函数表
+    typedef std::map<std::string, std::shared_ptr<TinyFunction>> FuncTable;
+
     /* 新建变量 */
     void AddIdentifier(std::string name, Value::Type type) {
-        auto iter = idTable.back().find(name);
-        if(iter == idTable.back().end()) {
+        auto iter = idTableStack.back().find(name);
+        if(iter == idTableStack.back().end()) {
             std::unique_ptr<Value> value = nullptr;
             switch (type) {
                 case Value::FLOAT: value = std::make_unique<Value>(type, 0.0);
@@ -229,7 +239,7 @@ public:
                 case Value::BOOL: value = std::make_unique<Value>(type, false);
             }
             auto id = std::make_shared<Identifier>(name, std::move(value));
-            idTable.back()[name] = id;
+            idTableStack.back()[name] = id;
         }    
         else
             throw TinyException("Redeclared Identifier: " + name);
@@ -237,8 +247,8 @@ public:
 
     /* 根据变量名查找变量 */
     std::shared_ptr<Identifier> GetId(std::string name) {
-        auto iter = idTable.back().find(name);
-        if (iter != idTable.back().end())
+        auto iter = idTableStack.back().find(name);
+        if (iter != idTableStack.back().end())
             return std::shared_ptr<Identifier>(iter->second);
         throw TinyException("Undeclared Identifier: " + name);
     }
@@ -262,18 +272,18 @@ public:
     }
 
     /* 变量表压栈 */
-    void PushIdTable(std::map<std::string, std::shared_ptr<Identifier>>& ids) {
-        idTable.push_back(ids);
+    void PushIdTable(IdTable& ids) {
+        idTableStack.push_back(ids);
     }
 
     /* 变量表出栈 */
     void PopIdTable() {
-        idTable.pop_back();
+        idTableStack.pop_back();
     }
 
     void Dump() {
-        std::cout << "\nidTableSize = " << idTable.back().size() << std::endl;
-        for (auto &sym : idTable.back()) {
+        std::cout << "\nidTableSize = " << idTableStack.back().size() << std::endl;
+        for (auto &sym : idTableStack.back()) {
             sym.second->Dump();
         }
         std::cout << "\nfuncTableSize = " << funcTable.size() << std::endl;
@@ -285,12 +295,12 @@ public:
 
 private:
     /*
-    总变量表为栈结构，栈中的每个元素为一个函数执行时的变量表(std::map<std::string, std::shared_ptr<Identifier>>)
+    变量表栈为存储变量表的栈结构，栈中的每个元素为一个函数执行时的变量表(std::map<std::string, std::shared_ptr<Identifier>>)
     当某个函数被调用时，将其变量表压栈；当某个函数返回时，将其变量表出栈。
     只能访问栈顶的变量表(属于正在执行的函数)
     变量表与函数表均为std::map，通过唯一的名称索引相应的变量/函数地址
     */
-    std::vector<std::map<std::string, std::shared_ptr<Identifier>>> idTable;    // 变量表栈
-    std::map<std::string, std::shared_ptr<TinyFunction>> funcTable;             // 函数表
+    std::vector<IdTable> idTableStack;      // 变量表栈
+    FuncTable funcTable;                    // 函数表
 
 };

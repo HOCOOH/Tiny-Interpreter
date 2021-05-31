@@ -1,14 +1,17 @@
 int main() {
-    int m;
-    int n;
-    int tmp;
-    read m;
-    read n;
-    // 比较大小，使得m中存储大数，n中存储小数
-    if (m < n) then
-        tmp := m;
-        m := n;
-        n := tmp;
-    end
-    
+    int i;
+    int j;
+    i := 1;
+    repeat
+        j := 1;
+        repeat
+            if (i = j) then
+                write i * j;
+            end
+            j := j + 1;
+        until j > 100;
+        i := i + 1;
+    until i > 20;
+
+    return 0;
 }

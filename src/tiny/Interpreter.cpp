@@ -60,7 +60,7 @@ int Interpreter::interpret() {
 
         // 在符号表中查找main函数
         std::shared_ptr<TinyFunction> main = nullptr;
-        std::map<std::string, std::shared_ptr<Identifier>> mainIdTable;
+        SymbolTable::IdTable mainIdTable;
         try {
             main = symbolTable->GetFunc("main");
             symbolTable->PushIdTable(mainIdTable);  // 将main函数的符号表压栈

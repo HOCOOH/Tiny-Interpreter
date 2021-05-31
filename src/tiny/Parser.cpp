@@ -26,7 +26,7 @@ antlrcpp::Any TinyCodeVisitor::visitDecl(TinyParser::DeclContext *ctx) {
         if (ctx->ASSIGN()) {
             std::shared_ptr<Identifier> id = interpreter->symbolTable->GetId(name);
             auto exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
-            id->SetValue(std::make_unique<Value>(exp->GetType(), exp->GetVal()));
+            id->SetValue(exp);
         }
         return 0;
     } catch (TinyException& e) {
@@ -60,22 +60,22 @@ antlrcpp::Any TinyCodeVisitor::visitRead_stmt(TinyParser::Read_stmtContext *ctx)
         if (id->GetType() == Value::INT) {
             int val = 0;
             std::cin >> val;
-            id->SetValue(std::make_unique<Value>(Value::INT, val));
+            id->SetValue(std::make_shared<Value>(Value::INT, val));
         }
         else if (id->GetType() == Value::FLOAT) {
             double val = 0.0;
             std::cin >> val;
-            id->SetValue(std::make_unique<Value>(Value::FLOAT, val));
+            id->SetValue(std::make_shared<Value>(Value::FLOAT, val));
         }
         else if (id->GetType() == Value::CHAR) {
             char val = 0;
             std::cin >> val;
-            id->SetValue(std::make_unique<Value>(Value::CHAR, val));
+            id->SetValue(std::make_shared<Value>(Value::CHAR, val));
         }
         else if (id->GetType() == Value::BOOL) {
             bool val = false;
             std::cin >> val;
-            id->SetValue(std::make_unique<Value>(Value::BOOL, val));
+            id->SetValue(std::make_shared<Value>(Value::BOOL, val));
         }
         else {
             throw TinyException("Invalid Identifier Type: " + id->GetTypeStr());
@@ -104,7 +104,7 @@ antlrcpp::Any TinyCodeVisitor::visitAssign_stmt(TinyParser::Assign_stmtContext *
 
         // 计算表达式并赋值
         auto exp = visitExp(ctx->exp()).as<std::shared_ptr<Value>>();
-        id->SetValue(std::make_unique<Value>(exp->GetType(), exp->GetVal()));
+        id->SetValue(exp);
     } catch(TinyException& e) {
         std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;
         exit(-1);
@@ -193,7 +193,7 @@ antlrcpp::Any TinyCodeVisitor::visitFunc_call(TinyParser::Func_callContext *ctx,
         visitArgs(ctx->args(), args);
 
         // 新建变量表并压栈
-        std::map<std::string, std::shared_ptr<Identifier>> funcIdTable;
+        SymbolTable::IdTable funcIdTable;
         interpreter->symbolTable->PushIdTable(funcIdTable);
 
         // 将函数实参写入新的变量表
@@ -202,7 +202,7 @@ antlrcpp::Any TinyCodeVisitor::visitFunc_call(TinyParser::Func_callContext *ctx,
             
             // 赋值与类型检查
             auto id = interpreter->symbolTable->GetId(params[i]->GetName());
-            id->SetValue(std::make_unique<Value>(args[i]->GetType(), args[i]->GetVal()));
+            id->SetValue(args[i]);
         }
 
         // 创建一个TinyCodeVisitor执行函数
@@ -211,7 +211,12 @@ antlrcpp::Any TinyCodeVisitor::visitFunc_call(TinyParser::Func_callContext *ctx,
 
         // 执行完成后将变量表出栈并返回
         interpreter->symbolTable->PopIdTable();
-        return retVal;
+
+        // 返回值类型检查
+        auto ret = std::make_shared<Identifier>("ret", std::make_unique<Value>(func->GetReturnType(), 0));
+        ret->SetValue(retVal);
+
+        return ret->GetValue();
 
     } catch(TinyException& e) {
         std::cerr << "TinyERROR: " << filename << "(" << ctx->getStart()->getLine() << "): " << e.GetMessage() << std::endl;

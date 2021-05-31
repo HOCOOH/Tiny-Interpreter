@@ -13,4 +13,6 @@ int main() {
         write Fibonacci(n,);
         n := n + 1;
     until n > 10;
+
+    return 0;
 }
