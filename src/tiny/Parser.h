@@ -3,7 +3,7 @@
 #include "Interpreter.h"
 
 /*
-遍历并执行函数
+遍历语法树并执行函数
 */
 class TinyCodeVisitor : public TinyBaseVisitor {
 

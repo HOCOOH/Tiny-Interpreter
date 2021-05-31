@@ -21,8 +21,6 @@ public:
     int interpret(void);
     /* Add source file */
     void addSource(const char* filename);
-    /* Read source file */
-    void readSource(const std::string  &filename,std::string &file_contents);
 
 private:
     std::list<std::string> sources;             // 源文件列表

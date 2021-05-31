@@ -8,37 +8,20 @@ void Interpreter::addSource(const char* filename) {
     this->sources.push_back(filename);
 }
 
-void Interpreter::readSource(const std::string  &filename,std::string &file_contents)  {
-    std::string str;
-    std::ifstream stream;
-
-    stream.open(filename);
-    std::string m = filename;
-
-    /*  read the input line by line to avoid any linux/windows/mac newline problem */
-    while (getline(stream, str))
-    {
-        // Pad the string
-        if(str.size() < 80)
-            str.append( 80 - str.size(), ' ');
-        file_contents += str;
-        file_contents.push_back('\n');
-    }
-
-    stream.close();
-}
-
 int Interpreter::interpret() {
-    std::string file_contents;
-
+    std::ifstream stream;
     for (std::string const& file: this->sources) {
         std::cout << "Interpreting file:" << file << std::endl;
-        readSource(file,file_contents);
 
-        antlr4::ANTLRInputStream input(file_contents);
+        stream.open(file);
 
+        // take the input and convert to the ANTLR format
+        antlr4::ANTLRInputStream input(stream);
+
+        // create a lexer that works on that input
         TinyLexer lexer(&input);
 
+        // produce a stream of tokens using the lexer
         antlr4::CommonTokenStream tokens(&lexer);
 
         /*
@@ -48,6 +31,7 @@ int Interpreter::interpret() {
 		}
         */
 
+        // create a parser that works on the stream of tokens
         TinyParser parser(&tokens);
 
         TinyParser::ProgContext* tree = parser.prog();
@@ -76,6 +60,8 @@ int Interpreter::interpret() {
         // symbolTable->Dump();
 
         symbolTable->PopIdTable();  // 弹出main函数的符号表
+
+        stream.close();
     }
     return 0;
 }

@@ -57,6 +57,7 @@ antlrcpp::Any TinyCodeVisitor::visitRead_stmt(TinyParser::Read_stmtContext *ctx)
         std::shared_ptr<Identifier> id = interpreter->symbolTable->GetId(name);
 
         // 在输入流中读数据
+        std::cout << "Reading Identifier " << name << ": ";
         if (id->GetType() == Value::INT) {
             int val = 0;
             std::cin >> val;
@@ -209,7 +210,7 @@ antlrcpp::Any TinyCodeVisitor::visitFunc_call(TinyParser::Func_callContext *ctx,
         TinyCodeVisitor funcVisitor(filename, interpreter);
         auto retVal = funcVisitor.visitFunc_body(func->GetEntry()).as<std::shared_ptr<Value>>();
 
-        // 执行完成后将变量表出栈并返回
+        // 执行完成后将变量表出栈
         interpreter->symbolTable->PopIdTable();
 
         // 返回值类型检查

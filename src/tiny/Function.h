@@ -4,7 +4,7 @@
 
 class Interpreter;
 /*
-遍历函数定义
+遍历语法树并查找函数定义
 */
 class TinyDeclVisitor : public TinyBaseVisitor {
 
