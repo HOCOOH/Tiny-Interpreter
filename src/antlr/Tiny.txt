@@ -1,0 +1,44 @@
+program             -> fucntion-sequence
+
+fucntion-sequence   -> fucntion-sequence function | fucntion
+function            -> type-specifier identifier ( parameters ) { function_body }
+parameters          -> parameters parameter | parameter
+parameter           -> type-specifier identifier ,
+function_body       -> declaration-list stmt-sequence
+
+declaration-list    -> declaration-list declaration | declaration
+declaration         -> type-specifier identifier ;
+                    |  type-specifier identifier := exp ;
+type-specifier      -> int | char | float | bool | void
+
+stmt_sequence       -> stmt_sequence statement | statement
+statement           -> if-stmt | repeat-stmt | assign-stmt 
+                    |  read-stmt | write-stmt | call-stmt | return-stmt
+if-stmt             -> if(exp) then stmt-sequence end
+                    |  if(exp) then stmt-sequence else stmt-sequence end
+repeat-stmt         -> repeat stmt-sequence until exp ;
+assign-stmt         -> identifier := exp ;
+read-stmt           -> read identifier ;
+write-stmt          -> write exp ;
+call-stmt           -> function_call ;
+return-stmt         -> return exp ;
+
+function_call       -> identifier ( arguments )
+arguments           -> arguments argument | argument
+argument            -> exp ,
+
+exp                 -> simple-exp comparison-op simple-exp | simple-exp
+comparison-op       -> < | = | >
+simple-exp          -> simple-exp addop term | term
+addop               -> + | -
+term                -> term mulop unary | unary
+mulop               -> * | /
+unary               -> - unary | factor
+factor              -> ( exp ) | number | real | identifier 
+                    |  true | false | function_call
+
+number              -> [1-9][0-9]* | '0'
+real                -> ([1-9][0-9]* | '0')'.'[0-9]+
+identifier          -> [a-zA-Z]([a-zA-Z0-9])*
+whitespace          -> [ \t\r\n]+
+comment             -> '//' .*? '\n'

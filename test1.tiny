@@ -1,9 +1,0 @@
-int main() {
-    int aaa := 11;
-    int bbb := 54;
-    write add(aaa, bbb,);
-}
-
-int add(int a, int b,) {
-    return a + b;
-}
